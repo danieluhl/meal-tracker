@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import slug from 'unique-slug';
+import netlifyIdentity from 'netlify-identity-widget';
 
 const ENDPOINTS = {
   addUrls: 'add-urls',
@@ -50,6 +51,12 @@ class URLMaker extends Component {
     this.state = { loading: false, msg: null, inputText: '' };
   }
 
+  componentDidMount() {
+    netlifyIdentity.init({
+      container: '#netlifyIdentityModal'
+    });
+  }
+
   createHandleClick = (api, data) => e => {
     e.preventDefault();
 
@@ -94,26 +101,32 @@ class URLMaker extends Component {
   };
 
   render() {
-    const { loading, msg } = this.state;
+    const { loading, msg, loggedIn } = this.state;
 
-    return hash ? (
-      <h1>Redirecting...</h1>
-    ) : (
-      <div className="wrapper">
-        <form className="pure-form pure-form-stacked">
-          <label htmlFor="inputText">
-            <textarea
-              class="urlInput"
-              id="inputText"
-              onChange={this.handleListChange}
-              value={this.state.inputText}
-            />Throw a csv list of urls or some html with proper hrefs here
-          </label>
-          <button className="pure-button pure-button-primary" onClick={this.handleClickAddUrls}>
-            {loading ? 'Loading...' : 'Add Urls'}
-          </button>
-        </form>
-        <span>{msg}</span>
+    return (
+      <div>
+        <div id="netlifyIdentityModal" />
+        <div className="pure-button" data-netlify-identity-button />
+        {loggedIn && hash ? (
+          <h1>Redirecting...</h1>
+        ) : (
+          <div className="wrapper">
+            <form className="pure-form pure-form-stacked">
+              <label htmlFor="inputText">
+                <textarea
+                  className="urlInput"
+                  id="inputText"
+                  onChange={this.handleListChange}
+                  value={this.state.inputText}
+                />Throw a csv list of urls or some html with proper hrefs here
+              </label>
+              <button className="pure-button pure-button-primary" onClick={this.handleClickAddUrls}>
+                {loading ? 'Loading...' : 'Add Urls'}
+              </button>
+            </form>
+            <span>{msg}</span>
+          </div>
+        )}
       </div>
     );
   }
